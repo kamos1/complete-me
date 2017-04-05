@@ -4,5 +4,6 @@ export default class Node {
     this.isWord = false;
     this.next = next;
     this.address
+    this.timesSelected = 0;
   }
 }

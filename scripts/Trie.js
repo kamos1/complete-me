@@ -19,8 +19,13 @@ export default class Trie {
       currentNode.next[letter] = new Node(letter)
       currentNode = currentNode.next[letter];
     })
-    currentNode.isWord = true
-    this.wordCount++;
+
+    if (!currentNode.isWord) {
+      currentNode.isWord = true
+      this.wordCount++;
+    } else {
+      currentNode.isWord = true;
+    }
   }
 
   find(data) {
@@ -35,39 +40,60 @@ export default class Trie {
     return currentNode;
   }
 
-  suggest(data, node) {
-    var foundNode = node || this.find(data)
-    var suggestions = [];
-    var words = data
+
+  suggest(data, suggestions) {
+    var foundNode = this.find(data)
+    var suggestionsObj = suggestions || [];
     var keys = Object.keys(foundNode.next)
 
+    //if the property isWord for the foundNodef is true
+    //push an object of word: data and timesSelected: foundNode.timesSelected
+    //in suggestionsObj array
     if (foundNode.isWord) {
-      suggestions.push(words)
+      suggestionsObj.push({word: data, timesSelected: foundNode.timesSelected})
     }
 
-    if (!foundNode.next) {
-      return
-    } else {
-      keys.forEach(key => {
-        words = data + foundNode.next[key].data
-        var garbage = this.suggest(words, foundNode.next[key]);
 
-        suggestions = suggestions.concat(garbage)
-      })
-    }
+    //iterate over each key
+    //recursively call suggest and
+    //each time concatenate data and the key of the current object
+    keys.forEach((key) => {
+      this.suggest(data + key, suggestionsObj);
+    })
 
-    return suggestions;
+    //sort the suggestionsObj array by the timesSelected property
+    suggestionsObj.sort((a, b) => {
+      return b.timesSelected - a.timesSelected
+    })
+
+    //map the data value for each word key into suggestionsArray
+    var suggestionsArray = suggestionsObj.map((obj) => {
+      return obj['word']
+    })
+
+    return suggestionsArray;
   }
 
   count() {
     return this.wordCount;
   }
 
-  populate() {
-    //check the root node
-    //split the words
-    //populate the trie
+  populate(data) {
+    data.forEach((word) => {
+      this.insert(word)
+    })
   }
-  // select()
+
+  select(data, selected) {
+    var collector = this.suggest(data);
+    var foundWord = collector.find((word) => {
+      if (word === selected) {
+        return word;
+      }
+    })
+    var node = this.find(foundWord);
+
+    node.timesSelected++
+  }
 
 }

@@ -27,4 +27,10 @@ describe('Node', () => {
 
     assert.equal(you.next, me)
   })
+
+  it('should create a node with timesSelected set to 0', () => {
+    let node = new Node();
+
+    assert.equal(node.timesSelected, 0)
+  })
 })

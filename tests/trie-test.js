@@ -6,7 +6,6 @@ const fs = require('fs');
 require('locus')
 
 describe('Trie', () => {
-  const text = "/usr/share/dict/words"
 
   it('should create a node', () => {
     var completion = new Trie();
@@ -20,6 +19,9 @@ describe('Trie', () => {
     assert.deepEqual(completion.root.next, {});
   })
 
+})
+
+describe('Insert', () => {
   it('should insert a word', () => {
     var completion = new Trie;
 
@@ -30,7 +32,6 @@ describe('Trie', () => {
     assert.equal(completion.root.next.p.next.i.next.z.data, 'z');
     assert.equal(completion.root.next.p.next.i.next.z.next.z.data, 'z');
     assert.equal(completion.root.next.p.next.i.next.z.next.z.next.a.data, 'a');
-
   })
 
   it('should insert two words', () => {
@@ -61,7 +62,9 @@ describe('Trie', () => {
     assert.equal(completion.root.next.a.next.t.data, 't');
     assert.equal(completion.root.next.a.next.t.next.s.data, 's');
   })
+})
 
+describe('Find', () => {
   it('should find a node', () => {
     var completion = new Trie();
 
@@ -84,6 +87,10 @@ describe('Trie', () => {
 
     assert.equal(finds.data, completion.root.next.a.next.t.data);
   })
+})
+
+describe('Suggest', () => {
+  const text = "/usr/share/dict/words"
 
   it('should return an array', () => {
     var completion = new Trie();
@@ -93,7 +100,7 @@ describe('Trie', () => {
     assert.isArray(result, 'true');
   })
 
-  it.only('should return the words with pi as the prefix', () => {
+  it('should return the words with pi as the prefix', () => {
     var completion = new Trie();
 
     completion.insert('pizza');
@@ -115,6 +122,21 @@ describe('Trie', () => {
     assert.deepEqual(result, ['pizza', 'pizzas']);
   })
 
+  it('should update the first word returned for suggest to pizzeria', () => {
+    var completion = new Trie();
+    let dictionary = fs.readFileSync(text).
+      toString().toLowerCase().trim().split('\n');
+
+    completion.populate(dictionary);
+    completion.suggest('piz');
+    completion.select('piz', 'pizzeria')
+    var result = completion.suggest('piz')
+
+    assert.equal(result[0], 'pizzeria');
+  })
+})
+
+describe('Count', () => {
   it('should return the number of words in completion', () => {
     var completion = new Trie();
 
@@ -132,20 +154,30 @@ describe('Trie', () => {
 
     assert.equal(completion.count(), 2);
   })
+})
+
+describe('Populate', () => {
+  const text = "/usr/share/dict/words"
 
   it('should populate the trie', () => {
     var completion = new Trie();
-    let dictionary = fs.readFileSync(text).toString().trim().split('\n');
+    let dictionary = fs.readFileSync(text).
+      toString().toLowerCase().trim().split('\n');
 
     completion.populate(dictionary);
     var count = completion.count();
 
-    assert.equal(count, 235886);
+    assert.equal(count, 234371);
   })
+})
+
+describe('Select', () => {
+  const text = "/usr/share/dict/words"
 
   it('should update the timesSelected property to 1', () => {
     var completion = new Trie();
-    let dictionary = fs.readFileSync(text).toString().trim().split('\n');
+    let dictionary = fs.readFileSync(text).
+      toString().toLowerCase().trim().split('\n');
 
     completion.populate(dictionary);
     completion.select('piz', 'pizzeria')
@@ -156,7 +188,8 @@ describe('Trie', () => {
 
   it('should update the timesSelected property to 4', () => {
     var completion = new Trie();
-    let dictionary = fs.readFileSync(text).toString().trim().split('\n');
+    let dictionary = fs.readFileSync(text).
+      toString().toLowerCase().trim().split('\n');
 
     completion.populate(dictionary);
     completion.select('piz', 'pizzeria')
@@ -167,17 +200,5 @@ describe('Trie', () => {
     var result = completion.find('pizzeria')
 
     assert.equal(result.timesSelected, 4);
-  })
-
-  it('should update the first word returned for suggest to pizzeria', () => {
-    var completion = new Trie();
-    let dictionary = fs.readFileSync(text).toString().trim().split('\n');
-
-    completion.populate(dictionary);
-    completion.suggest('piz');
-    completion.select('piz', 'pizzeria')
-    var result = completion.suggest('piz')
-
-    assert.equal(result[0], 'pizzeria');
   })
 })

@@ -24,7 +24,7 @@ export default class Trie {
       currentNode.isWord = true
       this.wordCount++;
     } else {
-      currentNode.isWord = true;
+      return null
     }
   }
 
@@ -40,19 +40,17 @@ export default class Trie {
     return currentNode;
   }
 
-
   suggest(data, suggestions) {
     var foundNode = this.find(data)
     var suggestionsObj = suggestions || [];
     var keys = Object.keys(foundNode.next)
 
-    //if the property isWord for the foundNodef is true
-    //push an object of word: data and timesSelected: foundNode.timesSelected
+    //if the property isWord for the foundNode is true
+    //push an object of {word: data, timesSelected: foundNode.timesSelected}
     //in suggestionsObj array
     if (foundNode.isWord) {
       suggestionsObj.push({word: data, timesSelected: foundNode.timesSelected})
     }
-
 
     //iterate over each key
     //recursively call suggest and
